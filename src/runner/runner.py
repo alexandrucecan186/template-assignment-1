@@ -3,6 +3,7 @@ from typing import Dict, List, Any
 
 
 from data_ops import DataLoader, DataProcessor
+from data_ops.data_visualizer import DataVisualizer
 from opt_model.opt_model import OptModel
 
 
@@ -42,6 +43,11 @@ class Runner:
             print(f"Totals  |  load={t['sum_l']:.3f}  pv={t['sum_pv']:.3f}  imp={t['sum_imp']:.3f}  exp={t['sum_exp']:.3f}")
             balance = t["sum_pv"] + t["sum_imp"] - t["sum_exp"]
             print(f"Balance check: sum(l)={t['sum_l']:.3f}  vs  pv+imp-exp={balance:.3f}")
+
+        viz = DataVisualizer()
+        viz.plot_series(res, save_path="results_plot.png")
+        viz.plot_stacked(res, save_path="results_stacked.png")
+        
         return res
     
     def run_all_simulations(self) -> None:
