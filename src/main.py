@@ -1,10 +1,10 @@
-"""
-Placeholder for main function to execute the model runner. This function creates a single/multiple instance of the Runner class, prepares input data,
-and runs a single/multiple simulation.
+from pathlib import Path
+from runner.runner import Runner
 
-Suggested structure:
-- Import necessary modules and functions.
-- Define a main function to encapsulate the workflow (e.g. Create an instance of your the Runner class, Run a single simulation or multiple simulations, Save results and generate plots if necessary.)
-- Prepare input data for a single simulation or multiple simulations.
-- Execute main function when the script is run directly.
-"""
+def main():
+    # Build path to data/question_1a relative to this file
+    data_dir = Path(__file__).resolve().parent.parent / "data" / "question_1a"
+    Runner(str(data_dir)).run_single_simulation()
+
+if __name__ == "__main__":
+    main()

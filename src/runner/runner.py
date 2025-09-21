@@ -1,5 +1,9 @@
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Any
+
+
+from data_ops import DataLoader, DataProcessor
+from opt_model.opt_model import OptModel
 
 
 class Runner:
@@ -7,8 +11,8 @@ class Runner:
     Handles configuration setting, data loading and preparation, model(s) execution, results saving and ploting
     """
 
-    def __init__(self) -> None:
-        """Initialize the Runner."""
+    def __init__(self, data_dir: str = "data/question_1a"):
+        self.data_dir = data_dir
 
     def _load_config(self) -> None:
         """Load configuration (placeholder method)"""
@@ -26,18 +30,20 @@ class Runner:
         # Extend data_loader to handle multiple scenarios/questions
         # Prepare data using data_loader for multiple scenarios/questions
         
-    def run_single_simulation(self,Args) -> None:
-        """
-        Run a single simulation for a given question and simulation path (placeholder method).
+    def run_single_simulation(self) -> Dict[str, Any]:
+        data = DataLoader(self.data_dir).load_all_jsons()
 
-        Args (examples):
-            question: The question name for the simulation
-            simulation_path: The path to the simulation data
+        model = OptModel(extract_duals=True, solver_output=False)
+        res = model.solve(data)
 
-        """
-        # Initialize Optimization Model for the given question and simulation path
-        # Run the model
-        pass
+        print(f"Status: {res['status']}, Objective (DKK): {res['obj_val_DKK']:.4f}")
+        if "totals" in res:
+            t = res["totals"]
+            print(f"Totals  |  load={t['sum_l']:.3f}  pv={t['sum_pv']:.3f}  imp={t['sum_imp']:.3f}  exp={t['sum_exp']:.3f}")
+            balance = t["sum_pv"] + t["sum_imp"] - t["sum_exp"]
+            print(f"Balance check: sum(l)={t['sum_l']:.3f}  vs  pv+imp-exp={balance:.3f}")
+        return res
+    
     def run_all_simulations(self) -> None:
         """Run all simulations for the configured scenarios (placeholder method)."""
         pass

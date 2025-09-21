@@ -14,6 +14,7 @@ import xarray as xr
 import numpy as np
 import yaml
 
+from typing import Dict, Any
 
 class DataLoader:
     """
@@ -29,20 +30,25 @@ class DataLoader:
     question: str
     input_path: Path
 
-    def __init__(self):
-        """
-        Post-initialization to load and validate all required datasets (placeholder function)
+    def __init__(self, data_dir: str = "data/question_1a"):
+        self.data_dir = Path(data_dir)
 
-        example usage:
-        self.input_path = Path(self.input_path).resolve()
-        
-        # Load metadata (auxiliary scenario data)
-        self.load_aux_data('question1a_scenario1_aux_data.yaml')
-        
-        # Load CSV and json datasets
-        self.data()
-        """
-        pass
+    def load_all_jsons(self) -> Dict[str, Any]:
+        """Load inputs for Q1(a); return a single dict with consistent shapes."""
+        bus = json.loads((self.data_dir / "bus_params.json").read_text())[0]          # first/only bus
+        app_all = json.loads((self.data_dir / "appliance_params.json").read_text())   # list or dict
+        der = json.loads((self.data_dir / "DER_production.json").read_text())[0]      # first profile
+        usage = json.loads((self.data_dir / "usage_preference.json").read_text())[0]  # first consumer
+
+        # Normalize appliance structure to a single dict
+        app = app_all[0] if isinstance(app_all, list) else app_all
+
+        # Basic shape check
+        prices = bus["energy_price_DKK_per_kWh"]
+        pv_ratio = der["hourly_profile_ratio"]
+        assert len(prices) == len(pv_ratio), "PV ratio length must match price vector length."
+
+        return {"bus": bus, "appliance": app, "der_profile": der, "usage": usage}
 
     def _load_dataset(self, question_name: str):
         """Helper function to load all CSV or json files, using the appropriate method based on file extension.
